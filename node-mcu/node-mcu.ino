@@ -117,7 +117,7 @@ void loop()
 }
 
 void publish_data(){
-  int char_len = 35;
+  int char_len = 40;
   int dock_sens_1 = !digitalRead(dock_1);
   int dock_sens_2 = !digitalRead(dock_2);
   int dock_sens_3 = !digitalRead(dock_3);
@@ -126,7 +126,7 @@ void publish_data(){
   char aux_string[char_len];
   char data[char_len];
   
-  sprintf(aux_string, "{dock_1: %i, dock_2: %i, dock_3: %i}",dock_sens_1,dock_sens_2,dock_sens_3);
+  sprintf(aux_string, "{'dock_1': %i, 'dock_2': %i, 'dock_3': %i}",dock_sens_1,dock_sens_2,dock_sens_3);
   
   String temp_data = String(aux_string); 
   
