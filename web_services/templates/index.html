@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/mainpage.css') }}">
+    <script src="{{ url_for('static',filename='script.js') }}"> </script>
+    <title>Home</title>
+</head>
+
+<body>
+    <center><h2>E-Dock Management</h2></center>
+    
+    <div class="main">
+        <center><h3>Choose Location</h3></center>
+        <form action="/topic/", method="post">
+            <select name="channel">
+                <option value="lucknow/grocery/3441">Lucknow</option>
+            </select><br>
+            <input type="submit", value="Show Docks">
+        </form>
+    </div>
+</body>
+</html>

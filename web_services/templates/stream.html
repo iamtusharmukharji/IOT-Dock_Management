@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/mainpage.css') }}">
+    <script src="{{ url_for('static',filename='script.js') }}"> </script>
+    <title>Index Page</title>
+
+</head>
+
+<body onload="stream_data()">
+    <center> <h2>E-Dock Management</h2> </center>
+    <h3 id="dock_count">Active Docks: Loading..</h3>
+    <div id="main" , class="main"></div>
+
+</body>
+
+</html>
