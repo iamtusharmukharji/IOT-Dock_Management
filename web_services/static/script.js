@@ -23,9 +23,9 @@ function stream_data(){
 
             
             if (status == 1) {
-                dock_div.style.backgroundColor = "red";}
+                dock_div.style.backgroundColor = "#bf604d";}
             else {
-                dock_div.style.backgroundColor = "green";}
+                dock_div.style.backgroundColor = "#66b367";}
                 
             dock_count+=1
             }
