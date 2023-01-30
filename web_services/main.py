@@ -16,10 +16,11 @@ def handle_mqtt_message(client, userdata, message):
         data["topic"] = message.topic
         json_data = raw_message.replace("\'", "\"")
         json_data = json.loads(json_data)
-        #json_data["dock_4"] = 1
+        #json_data["dock_4"] = 0
+        #json_data["dock_5"] = 0
+        #json_data["dock_6"] = 1
         data["payload"] = json_data
-
-    #print(data)
+        
     que.put(data)
 
 
@@ -29,11 +30,15 @@ def home():
 
 @app.route("/topic/", methods = ["POST"])
 def topic_mqtt():
-    topic = request.form.get("channel")
-    print(topic)
+    form_data = request.form.get("channel")
+    form_data = form_data.split("-")
+    location = form_data.pop()
+    topic = form_data.pop()
+    
+    print(topic, location)
     mqtt.subscribe(topic)
     #data = handle_mqtt_message(mqtt)
-    return render_template("stream.html")
+    return render_template("stream.html", location = location)
 
 @app.route("/stream")
 def stream():
