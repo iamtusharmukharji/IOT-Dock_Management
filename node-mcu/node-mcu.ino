@@ -18,6 +18,8 @@ PubSubClient client(espClient);
 uint8_t dock_1 = D1;
 uint8_t dock_2 = D2;
 uint8_t dock_3 = D3;
+uint8_t dock_4 = D4;
+
 
 void setup()
 {
@@ -25,7 +27,7 @@ void setup()
     pinMode(dock_1, INPUT);
     pinMode(dock_2, INPUT);
     pinMode(dock_3, INPUT);
-    
+    pinMode(dock_4, INPUT);
     
     // Set software serial baud to 115200;
     Serial.begin(115200);
@@ -118,15 +120,20 @@ void loop()
 
 void publish_data(){
   int char_len = 40;
+
   int dock_sens_1 = !digitalRead(dock_1);
   int dock_sens_2 = !digitalRead(dock_2);
   int dock_sens_3 = !digitalRead(dock_3);
 
-  //String data = "{dock_1: "+String(dock_sens_1)+", dock_2: "+String(dock_sens_2)+", dock_3: "+dock_sens_3+"}";
+  
   char aux_string[char_len];
   char data[char_len];
   
-  sprintf(aux_string, "{'dock_1': %i, 'dock_2': %i, 'dock_3': %i}",dock_sens_1,dock_sens_2,dock_sens_3);
+  sprintf(
+          aux_string, 
+          "{'dock_1': %i, 'dock_2': %i, 'dock_3': %i}",
+          dock_sens_1, dock_sens_2, dock_sens_3
+          );
   
   String temp_data = String(aux_string); 
   
