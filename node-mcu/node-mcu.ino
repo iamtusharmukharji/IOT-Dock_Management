@@ -3,8 +3,8 @@
 #include <PubSubClient.h>
 
 // WiFi
-const char *ssid = "Net_2.4G";           // Enter your WiFi name
-const char *password = "Nopassword@163"; // Enter WiFi password
+const char *ssid = "Mywifi";           // Enter your WiFi name
+const char *password = "1234567890"; // Enter WiFi password
 
 // MQTT Broker
 const char *mqtt_broker = "test.mosquitto.org"; // test.mosquitto.org
@@ -109,8 +109,8 @@ void device_reconnect(){
 void loop()
 {   
     
-    if (!client.connected()){
-        Serial.println("Mqtt disconnected..");
+    if ( (!client.connected()) ||( WiFi.status() != WL_CONNECTED) ) {
+        Serial.println("Device Disconnected..");
         device_reconnect();
     }
     
