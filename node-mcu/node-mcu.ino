@@ -3,22 +3,30 @@
 #include <PubSubClient.h>
 
 // WiFi
-const char *ssid = "Mywifi";           // Enter your WiFi name
-const char *password = "1234567890"; // Enter WiFi password
+const char *ssid = "Net_2.4G";           // Enter your WiFi name
+const char *password = "Nopassword@163"; // Enter WiFi password
 
 // MQTT Broker
 const char *mqtt_broker = "test.mosquitto.org"; // test.mosquitto.org
-const char *topic = "lucknow/grocery/3441";
+const char *topic = "north-lucknow-grocery-3347";
 const int mqtt_port = 1883;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 
+
 uint8_t dock_1 = D1;
 uint8_t dock_2 = D2;
 uint8_t dock_3 = D3;
 uint8_t dock_4 = D4;
+
+int total_docks = 4;
+
+char buff[30];
+String on_line_message = "3347-MCU"+String(ESP.getChipId())+"-"+String(total_docks)+"-i" ;
+
+
 
 
 void setup()
@@ -103,7 +111,9 @@ void device_reconnect(){
     }
 
     // publish and subscribe
-    client.publish(topic, "i_am_online");
+    on_line_message.toCharArray(buff, on_line_message.length()+1);
+
+    client.publish(topic, buff);
 }
 
 void loop()
@@ -131,8 +141,8 @@ void publish_data(){
   
   sprintf(
           aux_string, 
-          "{'dock_1': %i, 'dock_2': %i, 'dock_3': %i}",
-          dock_sens_1, dock_sens_2, dock_sens_3
+          "{'dock_1': %i, 'dock_2': %i, 'dock_3': %i}-%i",
+          dock_sens_1, dock_sens_2, dock_sens_3, total_docks
           );
   
   String temp_data = String(aux_string); 

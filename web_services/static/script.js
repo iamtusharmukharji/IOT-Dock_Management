@@ -18,7 +18,7 @@ function stream_data(){
                 var dock_div = document.createElement("div");
                 dock_div.className = "dock";
                 dock_div.id = dock;
-                dock_div.innerHTML = "Dock "+String(dock_count);
+                dock_div.innerHTML = "Dock "+dock.charAt(dock.length-1);
                 document.getElementById("main").appendChild(dock_div);}
 
             
