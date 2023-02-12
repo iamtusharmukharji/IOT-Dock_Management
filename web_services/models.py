@@ -48,6 +48,7 @@ class Device(Base):
     topic = Column(VARCHAR(1024))
     location_code = Column(INTEGER, ForeignKey("location.id"))
     total_connected_docks = Column(INTEGER)
+    disabled_docks =  Column(VARCHAR(1024))
     is_deleted = Column(INTEGER)
     created_at = Column(DATETIME)
     updated_at = Column(DATETIME)
