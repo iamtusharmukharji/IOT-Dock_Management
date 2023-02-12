@@ -14,7 +14,7 @@ const int mqtt_port = 1883;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-
+String location_code = "3347";
 
 uint8_t dock_1 = D1;
 uint8_t dock_2 = D2;
@@ -24,7 +24,7 @@ uint8_t dock_4 = D4;
 int total_docks = 4;
 
 char buff[30];
-String on_line_message = "3347-MCU"+String(ESP.getChipId())+"-"+String(total_docks)+"-i" ;
+
 
 
 
@@ -111,9 +111,9 @@ void device_reconnect(){
     }
 
     // publish and subscribe
-    on_line_message.toCharArray(buff, on_line_message.length()+1);
+    //on_line_message.toCharArray(buff, on_line_message.length()+1);
 
-    client.publish(topic, buff);
+    client.publish(topic, "Device-Online");
 }
 
 void loop()
@@ -129,15 +129,15 @@ void loop()
 }
 
 void publish_data(){
-  int char_len = 40;
+  //int char_len = 40;
 
   int dock_sens_1 = !digitalRead(dock_1);
   int dock_sens_2 = !digitalRead(dock_2);
   int dock_sens_3 = !digitalRead(dock_3);
 
   
-  char aux_string[char_len];
-  char data[char_len];
+  char aux_string[280];
+  char data[280];
   
   sprintf(
           aux_string, 
@@ -146,8 +146,13 @@ void publish_data(){
           );
   
   String temp_data = String(aux_string); 
+  String chip_id = "MCU"+String(ESP.getChipId());
   
-  temp_data.toCharArray(data, char_len);
+  temp_data+="-"+chip_id;
+  temp_data+="-"+location_code;
+
+
+  temp_data.toCharArray(data, temp_data.length()+1);
   
   Serial.println(data); 
   client.publish(topic, data);

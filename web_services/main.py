@@ -11,48 +11,83 @@ from queue import Queue
 from time import sleep
 
 que = Queue()
+cache_devices = set()
+
+cache_docks = {}
+
+def add_device(device_id, location_code, total_docks, topic):
+
+    db = Session()
+        
+    db_device_check = db.query(models.Device).filter(models.Device.device_id == device_id, models.Device.location_code == location_code).first()
+
+    if db_device_check == None:
+        new_device = models.Device(device_id = device_id, 
+                                    location_code = int(location_code),
+                                    total_connected_docks = int(total_docks),
+                                    topic = topic,
+                                    created_at = datetime.now(),
+                                    is_deleted = 0)
+        db.add(new_device)
+        db.commit()
+        db.close()
+    cache_devices.add(device_id)
+    return True
+
+def get_disabled_docks(device_id):
+    if device_id not in cache_docks:
+        db = Session()
+            
+        db_device = db.query(models.Device).filter(models.Device.device_id == device_id).first()
+
+        disabled_docks = db_device.disabled_docks
+        cache_docks[device_id] = disabled_docks
+        db.close()
+    else:
+        disabled_docks = cache_docks[device_id]
+    return disabled_docks
+
+
 
 @mqtt.on_message()
 def handle_mqtt_message(client, userdata, message):
     raw_message = message.payload.decode()
     topic = message.topic
-    print(topic)
+    #print(cache_devices)
+    #print(cache_docks)
+    #print(topic)
     
-    if raw_message[-1] == "i":
-        device_data = raw_message.split("-")
-        device_data.pop()
-        
-        location_code = device_data[0]
-        device_id = device_data[1]
-        total_docks = device_data[2]
-        
-        db = Session()
-        
-        db_device_check = db.query(models.Device).filter(models.Device.device_id == device_id, models.Device.location_code == location_code).first()
-
-        if db_device_check == None:
-            new_device = models.Device(device_id = device_id, 
-                                        location_code = int(location_code),
-                                        total_connected_docks = int(total_docks),
-                                        topic = topic,
-                                        created_at = datetime.now(),
-                                        is_deleted = 0)
-
-            db.add(new_device)
-            db.commit()
-        db.close()
-
-
+    if raw_message == "Device-Online":
+        pass
     else:
         data = {}
         data["topic"] = message.topic
-        json_data = raw_message.replace("\'", "\"")
-        json_data = json.loads(json_data)
-        #json_data["dock_4"] = 0
-        #json_data["dock_5"] = 0
-        #json_data["dock_6"] = 1
-        data["payload"] = json_data
         
+        arr_data = raw_message.split('-')
+        
+        location_code = arr_data.pop()
+        device_id = arr_data.pop()
+        total_docks = arr_data.pop()
+        
+        if device_id not in cache_devices:
+            add_device(device_id, location_code, total_docks, message.topic)
+
+        raw_data = arr_data.pop()
+
+        
+        json_data = raw_data.replace("\'", "\"")
+        json_data = json.loads(json_data)
+        
+        disabled_docks = get_disabled_docks(device_id)
+        if disabled_docks not in {"", None}:
+            disabled_docks = disabled_docks.split(",")
+            for i in disabled_docks:
+                if i in json_data:
+                    json_data[i] = -1
+
+
+        data["payload"] = json_data
+        data["device_id"] = device_id
         que.put(data)
 
 
@@ -179,6 +214,49 @@ def add_entity(db = Session()):
         traceback.print_exc()
         return {"detail":str(err)}, 403
 
+@app.route("/dockcontrol/", methods= ["POST"])
+def dock_control():
+
+    db = Session()
+    device_id = request.json["device_id"]
+    state = request.json["state"]
+    dock_name = request.json["dock"]
+    print([device_id, dock_name, state])
+    db_disabled_docks = db.query(models.Device).filter(models.Device.device_id == device_id).first()
+    disabled_dock_arr = db_disabled_docks.disabled_docks
+    
+    if (disabled_dock_arr == None):
+        
+        if (state == "disable"):
+            db_disabled_docks.disabled_docks = dock_name
+    else:
+        
+        disabled_dock_arr = disabled_dock_arr.split(",")
+        if state == "disable":
+            disabled_dock_arr.append(dock_name)
+        if state == "enable":
+            if dock_name in disabled_dock_arr:
+                disabled_dock_arr.remove(dock_name)
+        
+        if disabled_dock_arr == []:
+            new_disabled = None
+        else:
+            disabled_dock_arr = set(disabled_dock_arr)
+            disabled_dock_arr = list(disabled_dock_arr)
+
+            new_disabled = ','.join(disabled_dock_arr)
+            print(new_disabled)
+
+        db_disabled_docks.disabled_docks = new_disabled
+        
+    cache_docks[device_id] = db_disabled_docks.disabled_docks
+    
+    db.commit()
+    db.refresh(db_disabled_docks)
+    db.close()
+    print(db_disabled_docks.disabled_docks)
+    print(cache_docks)
+    return {"detail":"dock operation sucessful"}
 
 
 if __name__ == "__main__":
